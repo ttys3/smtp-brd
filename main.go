@@ -62,9 +62,6 @@ func initCfg() {
 	}
 	showVersion = config.V().GetBool("version")
 	showHelp = config.V().GetBool("help")
-	if cfg.Debug {
-		config.V().Debug()
-	}
 }
 
 func mailHandler(origin net.Addr, from string, to []string, data []byte) {
@@ -194,11 +191,7 @@ func initZapLogger(dbg bool) func() {
 			return
 		}
 		// flushes buffer, if any
-		if err := logger.Sync(); err != nil {
-			if dbg {
-				fmt.Printf("zap: Sync() failed with error: %s\n", err)
-			}
-		}
+		logger.Sync()
 	}
 }
 
