@@ -7,4 +7,4 @@ openssl req -new -newkey rsa:2048 \
 -x509 \
 -out ssl.crt \
 -keyout ssl.key \
--subj "/C=US/ST=CA/L=LA/O=ttys3/OU=smtp-brd for remark42/CN=remark42.smtpd-brd.localhost"
+-subj "/C=US/ST=CA/L=LA/O=ttys3/OU=smtp-brd for remark42/CN=localhost"
