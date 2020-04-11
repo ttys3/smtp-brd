@@ -3,6 +3,7 @@ module github.com/ttys3/smtp-brd
 go 1.13
 
 require (
+	github.com/mailgun/mailgun-go/v4 v4.0.1
 	github.com/mhale/smtpd v0.0.0-20181125220505-3c4c908952b8
 	github.com/sendgrid/rest v2.4.1+incompatible // indirect
 	github.com/sendgrid/sendgrid-go v3.5.0+incompatible

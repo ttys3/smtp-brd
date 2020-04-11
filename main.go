@@ -10,91 +10,83 @@ import (
 
 	"github.com/mhale/smtpd"
 	flag "github.com/spf13/pflag"
-	"github.com/spf13/viper"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
-	"github.com/ttys3/smtp-brd/provider"
+	"github.com/ttys3/smtp-brd/config"
 	"github.com/ttys3/smtp-brd/parser"
+	"github.com/ttys3/smtp-brd/provider"
 )
 
 var appName = "smtp-brd"
 var Version = "dev"
 
-var listenAddr string
-var listenPort string
-var tlsEn bool
-var certFile string
-var keyFile string
-
-//@TODO support real AUTH
-var authUsername string
-var authPassword string
-
-var curProvider = ""
+var logger *zap.Logger
 var curSender provider.Sender
+
 var showVersion bool
 var showHelp bool
-var debugEn bool
-var logger *zap.Logger
+var cfg *config.BrdConfig
 
 func init() {
-	viper.SetConfigName("config.toml") // name of config file
-	viper.AddConfigPath(".")               // optionally look for config in the working directory
-	viper.AddConfigPath("/etc/" + appName)   // path to look for the config file in
-	viper.SetEnvPrefix("SMTP_BRD")
-	viper.AutomaticEnv()
+	flag.BoolP("version", "v", false, "show app version")
+	flag.BoolP( "help", "h", false, "show help")
+	flag.BoolP("debug", "d", false, "enable debug")
+	flag.StringP("provider", "P", "mailgun", "enable email send service provider")
+	flag.StringP("addr", "l", "0.0.0.0", "listen address")
+	flag.StringP("port", "p", "2525", "listen port")
+	flag.BoolP( "tls", "t", false, "enable TLS")
+	flag.StringP( "cert", "c", "", "TLS certificate file path")
+	flag.StringP("key", "k", "", "TLS private key file path")
+	flag.StringP( "user", "u", "", "SMTP AUTH username")
+	flag.StringP("secret", "s", "", "SMTP AUTH password")
+}
 
-	viper.Set("Verbose", true)
-
-	if err := viper.ReadInConfig(); err != nil {
-		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-			// Config file not found; just warn
-			fmt.Println("config file not found.")
-		} else {
-			// Config file was found but another error was produced
-			panic(fmt.Errorf("Fatal error config file: %s \n", err))
-		}
-	}
-
-	flag.BoolVarP(&showVersion, "version", "v", false, "show app version")
-	flag.BoolVarP(&showHelp, "help", "h", false, "show help")
-	flag.BoolVarP(&debugEn, "debug", "d", false, "enable debug")
-	flag.StringVarP(&curProvider, "provider", "P", "mailgun", "enable email send service provider")
-	flag.StringVarP(&listenAddr, "listen", "l", "0.0.0.0", "listen address")
-	flag.StringVarP(&listenPort, "port", "p", "2525", "listen port")
-	flag.BoolVarP(&tlsEn, "tls", "t", false, "enable TLS")
-	flag.StringVarP(&certFile, "cert", "c", "", "TLS certificate file path")
-	flag.StringVarP(&keyFile, "key", "k", "", "TLS private key file path")
-	flag.StringVarP(&authUsername, "user", "u", "", "SMTP AUTH username")
-	flag.StringVarP(&authPassword, "secret", "s", "", "SMTP AUTH password")
-
+func initCfg() {
+	// do this after all providers has been registered
 	flag.Parse()
-
-	if err := viper.BindPFlags(flag.CommandLine); err != nil {
+	// do BindPFlags() after pflag parse done
+	if err := config.V().BindPFlags(flag.CommandLine); err != nil {
 		panic(fmt.Errorf("viper.BindPFlags err: %w", err))
+	} else {
+		//fmt.Println("viper.BindPFlags done")
 	}
+	cfg = &config.BrdConfig{
+		Provider:     config.V().GetString("provider"),
+		Addr:         config.V().GetString("addr"),
+		Port:         config.V().GetString("port"),
+		CertFile:     config.V().GetString("cert"),
+		KeyFile:      config.V().GetString("key"),
+		AuthUsername: config.V().GetString("user"),
+		AuthPassword: config.V().GetString("secret"),
+		TLS:          config.V().GetBool("tls"),
+		Debug:        config.V().GetBool("debug"),
+	}
+	showVersion = config.V().GetBool("version")
+	showHelp = config.V().GetBool("help")
 }
 
 func mailHandler(origin net.Addr, from string, to []string, data []byte) {
 	// skip all Received header
 	msg , err := parser.ParseMail(data)
 	if err != nil {
-		zap.S().Errorf("parse mail failed: %s, Received mail from %s for %s with subject %s, origin: %s",
+		zap.S().Errorf("parse mail failed with err: %s, received mail from %s to %s with subject %s, request origin: %s",
 			err, from, to[0], msg.Subject, origin.String())
 		return
 	}
-	zap.S().Infof("Received mail from %s for %s with subject %s, origin: %s\n plainMessage: %s\n htmlMessage: %s\n, attachments: %#v",
+	zap.S().Debugf("parse mail success, received mail from %s for %s with subject %s, request origin: %s\n plainMessage: %s\n htmlMessage: %s\n, attachments: %#v",
 		from, to[0], msg.Subject, origin.String(),
 		msg.BodyPlain, msg.BodyHtml, msg.Attachments,
 		)
 	if err := curSender.Send(from, to[0], msg.Subject, string(msg.BodyPlain), string(msg.BodyHtml)); err != nil {
-		zap.S().Errorf("mail send failed: %s", err)
+		zap.S().Errorf("mail send failed with err: %s, from: %s, to: %s, subject: %s, request origin: %s", err,
+			from, to[0], msg.Subject, origin.String())
 	}
 }
 
 func main() {
-	flushLog := initZapLogger(debugEn)
+	initCfg()
+	flushLog := initZapLogger(cfg.Debug)
 	defer flushLog()
 
 	if showVersion {
@@ -107,53 +99,61 @@ func main() {
 		flag.Usage()
 		return
 	}
-	if tlsEn && (certFile == "" || keyFile == "") {
+
+	if cfg.TLS && (cfg.CertFile == "" || cfg.KeyFile == "") {
 		zap.S().Fatalf("TLS can not be enabled without specific cert and key path")
 	}
-	if listenAddr == "" {
+	if cfg.Addr == "" {
 		zap.S().Fatalf("listen addr can not be empty")
 	}
-	if listenPort == "" {
+	if cfg.Port == "" {
 		zap.S().Fatalf("listen port can not be empty")
 	}
-	addr :=  listenAddr + ":" + listenPort
+	addr :=  cfg.Addr + ":" + cfg.Port
 	zap.S().Infof("server listen on %s", addr)
 
-	if authUsername != "" && authPassword != "" {
+	if cfg.AuthUsername != "" && cfg.AuthPassword != "" {
 		zap.S().Info("SMTP AUTH enabled")
 	}
 
-	if curProvider == "" {
+	zap.S().Infof("available providers: %s", provider.AvailableProviders())
+
+	if cfg.Provider == "" {
 		zap.S().Fatalf("provider can not be empty")
 	}
-	if factory, err := provider.GetFactory(curProvider); err != nil {
+	if factory, err := provider.GetFactory(cfg.Provider); err != nil {
 		zap.S().Fatalf("provider init err: %s", err)
 	} else {
 		curSender = factory()
-		zap.S().Infof("provider init success: %s", curSender)
+		zap.S().Infof("provider [%s] init success: %s", cfg.Provider, curSender)
 	}
+	// start the server
+	initSmtpd(addr, appName, "")
+}
+
+func initSmtpd(addr, appName, hostname string) {
 	var err error
-	srv := &smtpd.Server{Addr: addr, Handler: mailHandler, Appname: appName, Hostname: ""}
+	srv := &smtpd.Server{Addr: addr, Handler: mailHandler, Appname: appName, Hostname: hostname}
 	srv.AuthHandler = smtpdAuth
 	// RFC 4954 specifies that plaintext authentication mechanisms such as LOGIN and PLAIN require a TLS connection.
 	// This can be explicitly overridden e.g. setting s.srv.AuthMechs["LOGIN"] = true.
 	// warn: if you disabled TLS, the go smtp client will only work if the hostname is "localhost", "127.0.0.1" or "::1"
 	// see https://golang.org/src/net/smtp/auth.go#L46
 	srv.AuthMechs = map[string]bool{"LOGIN": true, "PLAIN": true, "CRAM-MD5": true}
-	if debugEn {
+	if cfg.Debug {
 		smtpd.Debug = true
 		srv.LogRead = smtpdLogger("read")
 		srv.LogWrite = smtpdLogger("write")
 	}
-	if tlsEn {
-		err = srv.ConfigureTLS(certFile, keyFile)
+	if cfg.TLS {
+		err = srv.ConfigureTLS(cfg.CertFile, cfg.KeyFile)
 		if err != nil {
 			zap.S().Fatalf("TLS server start failed with error: %s", err)
 		} else {
 			// golang net/smtp client tls.Config.InsecureSkipVerify is enforced to true
 			// if TLS enabled, be sure your have valid certificate
 			// self-signed cert is not allowed by golang smtp client
-			zap.S().Infof("TLS server started. key file: %s, cert file: %s", keyFile, certFile)
+			zap.S().Infof("TLS server started. cert file: %s, key file: %s", cfg.CertFile, cfg.KeyFile)
 		}
 		srv.TLSListener = true
 		srv.TLSRequired = true
@@ -224,17 +224,17 @@ func smtpdAuth(remoteAddr net.Addr, mechanism string, username []byte, password 
 	zap.S().Debugf("[smtp.AuthHandler] remoteAddr: %s, mechanism: %s, got username: [%s], password: [%s], challenge: [%s]",
 		remoteAddr, mechanism, username, password, challenge)
 	// skip auth if the server does not require
-	if authUsername == "" || authPassword == "" {
+	if cfg.AuthUsername == "" || cfg.AuthPassword == "" {
 		return true, nil
 	}
 	errAuth := fmt.Errorf("invalid username or password")
-	if bytes.Compare(username, []byte(authUsername)) != 0 {
-		zap.S().Debugf("username expect: %s, actual: %s", authUsername, username)
+	if bytes.Compare(username, []byte(cfg.AuthUsername)) != 0 {
+		zap.S().Debugf("username expect: %s, actual: %s", cfg.AuthUsername, username)
 		// username invalid
 		return false, errAuth
 	}
 	if mechanism == "CRAM-MD5" {
-		d := hmac.New(md5.New, []byte(authPassword))
+		d := hmac.New(md5.New, []byte(cfg.AuthPassword))
 		d.Write(challenge)
 		s := make([]byte, 0, d.Size())
 		expectPwdHmac := []byte(fmt.Sprintf("%x", d.Sum(s)))
@@ -244,9 +244,9 @@ func smtpdAuth(remoteAddr net.Addr, mechanism string, username []byte, password 
 			return false, errAuth
 		}
 	} else {
-		// password invalid
-		if bytes.Compare(password, []byte(authPassword)) != 0 {
-			zap.S().Debugf("password expect: %s, actual: %s", authPassword, password)
+		// AUTH LOGIN/PLAIN
+		if bytes.Compare(password, []byte(cfg.AuthPassword)) != 0 {
+			zap.S().Debugf("password expect: %s, actual: %s", cfg.AuthPassword, password)
 			return false, errAuth
 		}
 	}
@@ -259,4 +259,14 @@ func CRAMMD5GetExpected(username, secret, challenge string) string {
 	hash.Write([]byte(challenge))
 	ret = hash.Sum(nil)
 	return username + " " + hex.EncodeToString(ret)
+}
+
+func boolParam(key string) bool {
+	val, _ := flag.CommandLine.GetBool(key)
+	return val
+}
+
+func stringParam(key string) string {
+	val, _ := flag.CommandLine.GetString(key)
+	return val
 }

@@ -21,6 +21,7 @@ type Sender interface {
 	AddTo(to string)
 	SetSubject(subject string)
 	SetTimeout(timeout time.Duration)
+	// below interface currently not used
 	SetCc(cc []string)
 	SetBcc(cc []string)
 	SetDate(dt time.Time)

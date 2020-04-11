@@ -7,7 +7,9 @@ import (
 
 const DefaultEmailTimeout = 10 * time.Second
 
-var providers = make(map[string]Factory)
+type providerPool map[string]Factory
+
+var providers = make(providerPool)
 
 type Factory func () Sender
 
@@ -20,4 +22,16 @@ func GetFactory(name string) (fac Factory, err error) {
 		return sndr, nil
 	}
 	return nil, fmt.Errorf("provider %s not found", name)
+}
+
+func AvailableProviders() []string {
+	var poolNames []string
+	for name, _ := range providers {
+		poolNames = append(poolNames, name)
+	}
+	return poolNames
+}
+
+func (p *providerPool) String() string {
+	return fmt.Sprintf("%+v", AvailableProviders())
 }
