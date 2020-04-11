@@ -56,6 +56,27 @@ the equal cli param is `--mailgun.api_key`
 
 run `smtp-brd --help` for full config options
 
+the `environment variables` is recommend way for running in container.
+
+**available config env vars and their default value**
+
+```ini
+    BRD_ADDR="0.0.0.0"
+    BRD_PORT="2525"
+    BRD_TLS=false
+    BRD_CERT=""
+    BRD_KEY=""
+    BRD_DEBUG=false
+    BRD_USER=""
+    BRD_SECRET=""
+    BRD_PROVIDER="mailgun"
+    BRD_MAILGUN_API_KEY=""
+    BRD_MAILGUN_DOMAIN=""
+    BRD_MAILGUN_TIMEOUT=10
+    BRD_SENDGRID_API_KEY=""
+    BRD_SENDGRID_TIMEOUT=10
+```
+ 
 ## TODO
 
 support multi `to`
