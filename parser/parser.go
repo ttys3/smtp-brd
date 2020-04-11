@@ -8,7 +8,7 @@ import (
 )
 
 // we should always skip the `Received` headers
-// but anyother headers may cause sensitive data leak
+// but any other headers may cause sensitive data leak
 // so, we enforced a headers whitelist here
 var headersWhitelist = []string{
 	"List-Unsubscribe-Post",

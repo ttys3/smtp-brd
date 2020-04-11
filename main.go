@@ -65,14 +65,13 @@ func initCfg() {
 }
 
 func mailHandler(origin net.Addr, from string, to []string, data []byte) {
-	// skip all Received header
 	msg, err := parser.ParseMail(data)
 	if err != nil {
 		zap.S().Errorf("parse mail failed with err: %s, received mail from %s to %s with subject %s, request origin: %s",
 			err, from, to[0], msg.Subject, origin.String())
 		return
 	}
-	zap.S().Debugf("parse mail success, received mail from %s for %s with subject %s, " +
+	zap.S().Debugf("parse mail success, received mail from %s for %s with subject %s, "+
 		"request origin: %s\nmsg parsed: %#v",
 		from, to[0], msg.Subject, origin.String(), msg)
 	sndr := sndrFactory()

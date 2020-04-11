@@ -97,7 +97,7 @@ func (s *MailgunSender) Send(from string, to string, subject string, bodyPlain s
 		}
 	}
 	s.SetTimeout(s.Timeout)
-	ctx, cancel := context.WithTimeout(context.Background(), s.Timeout * 2)
+	ctx, cancel := context.WithTimeout(context.Background(), s.Timeout*2)
 	defer cancel()
 	// Send the message	with a 10 second timeout
 	resp, id, err := s.mg.Send(ctx, message)
