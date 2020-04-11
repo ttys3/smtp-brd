@@ -12,18 +12,13 @@ type Sender interface {
 	Name() string
 	// send single mail
 	Send(from string, to string, subject string, bodyPlain string, bodyHtml string) error
-
-	SetHeaders(headers map[string]string)
-	ResetHeaders()
-	AddHeader(header, value string)
-
+	SetHeader(header, value string)
 	SetFrom(from string)
-	AddTo(to string)
+	AddTos(to ...string)
+	AddCCs(cc ...string)
+	AddBCCs(bcc ...string)
 	SetSubject(subject string)
 	SetTimeout(timeout time.Duration)
-	// below interface currently not used
-	SetCc(cc []string)
-	SetBcc(cc []string)
 	SetDate(dt time.Time)
-	SetAttach(attach []parser.BufferAttachment)
+	AddAttachs(attach ...parser.BufferAttachment)
 }

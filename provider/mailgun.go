@@ -35,19 +35,18 @@ type MailgunSender struct {
 	ContentType string // text/plain or text/html
 }
 
-func NewMailgunSender(Domain, APIKey string, TimeOut time.Duration) Sender {
-	if TimeOut == 0 {
-		TimeOut = DefaultEmailTimeout
+func NewMailgunSender(domain, apiKey string, timeout time.Duration) Sender {
+	if timeout == 0 {
+		timeout = DefaultEmailTimeout
 	}
 	sender := &MailgunSender{
-		Domain:  Domain,
-		APIKey:  APIKey,
-		Timeout: TimeOut,
+		Domain:  domain,
+		APIKey:  apiKey,
+		Timeout: timeout,
 	}
 
 	// Create an instance of the Mailgun Client
-	sender.mg = mailgun.NewMailgun(Domain, APIKey)
-	sender.mg.Client().Timeout = sender.Timeout
+	sender.mg = mailgun.NewMailgun(domain, apiKey)
 	return sender
 }
 
@@ -57,13 +56,29 @@ func (s *MailgunSender) Name() string {
 
 func (s *MailgunSender) Send(from string, to string, subject string, bodyPlain string, bodyHtml string) error {
 	if from != "" {
-		s.Message.From = from
+		s.SetFrom(from)
+	}
+	if to != "" {
+		s.AddTos(to)
 	}
 	if subject != "" {
-		s.Message.Subject = subject
+		s.SetSubject(subject)
 	}
-	message := s.mg.NewMessage(s.Message.From, s.Message.Subject, bodyPlain, to)
+	// validate required param
+	if s.Message.From == "" {
+		return fmt.Errorf("empty From. the from object must be provided for every email send")
+	}
+	if len(s.Message.To) == 0 {
+		return fmt.Errorf("empty to. at least one receipt should be provided")
+	}
+	message := s.mg.NewMessage(s.Message.From, s.Message.Subject, bodyPlain, s.Message.To...)
 	message.SetHtml(bodyHtml)
+	for _, to := range s.Message.CC {
+		message.AddCC(to)
+	}
+	for _, to := range s.Message.BCC {
+		message.AddBCC(to)
+	}
 	// extra headers used mainly for List-Unsubscribe feature
 	// You can enable Mailgun’s Unsubscribe functionality by turning it on in the settings area for your domain.
 	// Mailgun can automatically provide an unsubscribe footer in each email you send.
@@ -81,30 +96,23 @@ func (s *MailgunSender) Send(from string, to string, subject string, bodyPlain s
 			message.AddHeader(k, s.Message.Headers[k])
 		}
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), DefaultEmailTimeout)
+	s.SetTimeout(s.Timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), s.Timeout * 2)
 	defer cancel()
 	// Send the message	with a 10 second timeout
 	resp, id, err := s.mg.Send(ctx, message)
 	if err != nil {
 		return fmt.Errorf("mailgun: send failed: %w", err)
 	}
-	fmt.Printf("mailgun: send to %s success, ID: %s Resp: %s\n", to, id, resp)
+	fmt.Printf("mailgun: send to %s success, subject: %s, ID: %s Resp: %s\n", to, s.Message.Subject, id, resp)
 	return nil
 }
 
-func (s *MailgunSender) AddHeader(header, value string) {
+func (s *MailgunSender) SetHeader(header, value string) {
 	if s.Message.Headers == nil {
 		s.Message.Headers = make(map[string]string)
 	}
 	s.Message.Headers[header] = value
-}
-
-func (s *MailgunSender) SetHeaders(headers map[string]string) {
-	s.Message.Headers = headers
-}
-
-func (s *MailgunSender) ResetHeaders() {
-	s.SetHeaders(nil)
 }
 
 func (s *MailgunSender) SetFrom(from string) {
@@ -115,8 +123,8 @@ func (s *MailgunSender) SetSubject(subject string) {
 	s.Message.Subject = subject
 }
 
-func (s *MailgunSender) AddTo(to string) {
-	s.Message.To = append(s.Message.To, to)
+func (s *MailgunSender) AddTos(to ...string) {
+	s.Message.To = append(s.Message.To, to...)
 }
 
 func (s *MailgunSender) SetTimeout(timeout time.Duration) {
@@ -124,19 +132,19 @@ func (s *MailgunSender) SetTimeout(timeout time.Duration) {
 	s.mg.Client().Timeout = s.Timeout
 }
 
-func (s *MailgunSender) SetCc(cc []string) {
-	s.Message.Cc = cc
+func (s *MailgunSender) AddCCs(cc ...string) {
+	s.Message.CC = append(s.Message.CC, cc...)
 }
 
-func (s *MailgunSender) SetBcc(bcc []string) {
-	s.Message.Bcc = bcc
+func (s *MailgunSender) AddBCCs(bcc ...string) {
+	s.Message.BCC = append(s.Message.BCC, bcc...)
 }
 
 func (s *MailgunSender) SetDate(dt time.Time) {
 	s.Message.Date = dt
 }
 
-func (s *MailgunSender) SetAttach(attach []parser.BufferAttachment) {
+func (s *MailgunSender) AddAttachs(attach ...parser.BufferAttachment) {
 	s.Message.Attachments = attach
 }
 

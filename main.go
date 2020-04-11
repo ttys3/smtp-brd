@@ -21,7 +21,7 @@ var appName = "smtp-brd"
 var Version = "dev"
 
 var logger *zap.Logger
-var curSender provider.Sender
+var sndrFactory provider.Factory
 
 var showVersion bool
 var showHelp bool
@@ -72,11 +72,14 @@ func mailHandler(origin net.Addr, from string, to []string, data []byte) {
 			err, from, to[0], msg.Subject, origin.String())
 		return
 	}
-	zap.S().Debugf("parse mail success, received mail from %s for %s with subject %s, request origin: %s\n plainMessage: %s\n htmlMessage: %s\n, attachments: %#v",
-		from, to[0], msg.Subject, origin.String(),
-		msg.BodyPlain, msg.BodyHtml, msg.Attachments,
-	)
-	if err := curSender.Send(from, to[0], msg.Subject, string(msg.BodyPlain), string(msg.BodyHtml)); err != nil {
+	zap.S().Debugf("parse mail success, received mail from %s for %s with subject %s, " +
+		"request origin: %s\nmsg parsed: %#v",
+		from, to[0], msg.Subject, origin.String(), msg)
+	sndr := sndrFactory()
+	sndr.AddCCs(msg.CC...)
+	sndr.AddBCCs(msg.BCC...)
+	sndr.AddTos(msg.To...)
+	if err := sndr.Send(from, "", msg.Subject, string(msg.BodyPlain), string(msg.BodyHtml)); err != nil {
 		zap.S().Errorf("mail send failed with err: %s, from: %s, to: %s, subject: %s, request origin: %s", err,
 			from, to[0], msg.Subject, origin.String())
 	}
@@ -122,8 +125,8 @@ func main() {
 	if factory, err := provider.GetFactory(cfg.Provider); err != nil {
 		zap.S().Fatalf("provider init err: %s", err)
 	} else {
-		curSender = factory()
-		zap.S().Infof("provider [%s] init success: %s", cfg.Provider, curSender)
+		sndrFactory = factory
+		zap.S().Infof("provider init success: [%s]", cfg.Provider)
 	}
 	// start the server
 	initSmtpd(addr, appName, "")

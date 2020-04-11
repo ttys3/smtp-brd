@@ -23,8 +23,8 @@ type BufferAttachment struct {
 type Message struct {
 	From        string
 	To          []string
-	Cc          []string
-	Bcc         []string
+	CC          []string
+	BCC         []string
 	Subject     string
 	Date        time.Time
 	BodyPlain   []byte
@@ -43,8 +43,8 @@ func ParseMail(message []byte) (m Message, err error) {
 
 	m.From = msg.Header.From()
 	m.To = msg.Header.To()
-	m.Cc = msg.Header.Cc()
-	m.Bcc = msg.Header.Bcc()
+	m.CC = msg.Header.Cc()
+	m.BCC = msg.Header.Bcc()
 	m.Subject = msg.Header.Subject()
 	// @TODO does email service provider web API support this ? or they override it ?
 	m.Date, _ = msg.Header.Date()

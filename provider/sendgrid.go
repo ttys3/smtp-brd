@@ -52,23 +52,59 @@ func (s *SendgridSender) Name() string {
 
 func (s *SendgridSender) Send(from string, to string, subject string, bodyPlain string, bodyHtml string) error {
 	if from != "" {
-		s.Message.From = from
+		s.SetFrom(from)
+	}
+	if to != "" {
+		s.AddTos(to)
 	}
 	if subject != "" {
-		s.Message.Subject = subject
+		s.SetSubject(subject)
 	}
-	fromEmail := mail.NewEmail("", s.Message.From)
-	toEmail := mail.NewEmail("", to)
-	sgmail := mail.NewSingleEmail(fromEmail, s.Message.Subject, toEmail, bodyPlain, bodyHtml)
+	// validate required param
+	if s.Message.From == "" {
+		return fmt.Errorf("empty From. the from object must be provided for every email send")
+	}
+	if len(s.Message.To) == 0 {
+		return fmt.Errorf("empty to. at least one receipt should be provided")
+	}
 
+	//mail.NewV3MailInit() is quick for send single mail
+	// create new *SGMailV3
+	m := mail.NewV3Mail()
+	// the from address must match a verified Sender Identity
+	fromEmail := mail.NewEmail("", s.Message.From)
+	m.SetFrom(fromEmail)
+	// If present, text/plain must be first, followed by text/html
+	contentPlain := mail.NewContent("text/plain", bodyPlain)
+	contentHtml := mail.NewContent("text/html", bodyHtml)
+	m.AddContent(contentPlain, contentHtml)
+
+	// create new *Personalization
+	personalization := mail.NewPersonalization()
+	personalization.Subject = s.Message.Subject
+	// Each email address in the personalization block should be unique between to, cc, and bcc
+	for _, to := range s.Message.To {
+		toEmail := mail.NewEmail("", to)
+		personalization.AddTos(toEmail)
+	}
+	for _, to := range s.Message.CC {
+		toEmail := mail.NewEmail("", to)
+		personalization.AddCCs(toEmail)
+	}
+	for _, to := range s.Message.BCC {
+		toEmail := mail.NewEmail("", to)
+		personalization.AddBCCs(toEmail)
+	}
 	// extra headers used mainly for List-Unsubscribe feature
 	// see more info via https://sendgrid.com/docs/ui/sending-email/list-unsubscribe/
 	if s.Message.Headers != nil && len(s.Message.Headers) > 0 {
-		sgmail.Headers = s.Message.Headers
+		personalization.Headers = s.Message.Headers
 	}
+	// add `personalization` to `m`
+	m.AddPersonalizations(personalization)
 	// Send the message	with a 10 second timeout
-	sendgrid.DefaultClient.HTTPClient.Timeout = s.Timeout
-	resp, err := s.sg.Send(sgmail)
+	s.SetTimeout(s.Timeout)
+	resp, err := s.sg.Send(m)
 	if err != nil {
 		return fmt.Errorf("sendgrid: request failed: %w", err)
 	}
@@ -77,23 +113,15 @@ func (s *SendgridSender) Send(from string, to string, subject string, bodyPlain 
 	if resp.StatusCode%100 != 2 {
 		return fmt.Errorf("sendgrid: send failed with err: %+v", resp.Body)
 	}
-	fmt.Printf("sendgrid: send to %s success, StatusCode: %d\n", to, resp.StatusCode)
+	fmt.Printf("sendgrid: send to %s success, subject: %s, StatusCode: %d\n", to, s.Message.Subject, resp.StatusCode)
 	return nil
 }
 
-func (s *SendgridSender) AddHeader(header, value string) {
+func (s *SendgridSender) SetHeader(header, value string) {
 	if s.Message.Headers == nil {
 		s.Message.Headers = make(map[string]string)
 	}
 	s.Message.Headers[header] = value
-}
-
-func (s *SendgridSender) SetHeaders(headers map[string]string) {
-	s.Message.Headers = headers
-}
-
-func (s *SendgridSender) ResetHeaders() {
-	s.SetHeaders(nil)
 }
 
 func (s *SendgridSender) SetFrom(from string) {
@@ -104,8 +132,8 @@ func (s *SendgridSender) SetSubject(subject string) {
 	s.Message.Subject = subject
 }
 
-func (s *SendgridSender) AddTo(to string) {
-	s.Message.To = append(s.Message.To, to)
+func (s *SendgridSender) AddTos(to ...string) {
+	s.Message.To = append(s.Message.To, to...)
 }
 
 func (s *SendgridSender) SetTimeout(timeout time.Duration) {
@@ -113,19 +141,19 @@ func (s *SendgridSender) SetTimeout(timeout time.Duration) {
 	sendgrid.DefaultClient.HTTPClient.Timeout = s.Timeout
 }
 
-func (s *SendgridSender) SetCc(cc []string) {
-	s.Message.Cc = cc
+func (s *SendgridSender) AddCCs(cc ...string) {
+	s.Message.CC = append(s.Message.CC, cc...)
 }
 
-func (s *SendgridSender) SetBcc(bcc []string) {
-	s.Message.Bcc = bcc
+func (s *SendgridSender) AddBCCs(bcc ...string) {
+	s.Message.BCC = append(s.Message.BCC, bcc...)
 }
 
 func (s *SendgridSender) SetDate(dt time.Time) {
 	s.Message.Date = dt
 }
 
-func (s *SendgridSender) SetAttach(attach []parser.BufferAttachment) {
+func (s *SendgridSender) AddAttachs(attach ...parser.BufferAttachment) {
 	s.Message.Attachments = attach
 }
 
