@@ -26,7 +26,7 @@ func GetFactory(name string) (fac Factory, err error) {
 
 func AvailableProviders() []string {
 	var poolNames []string
-	for name, _ := range providers {
+	for name := range providers {
 		poolNames = append(poolNames, name)
 	}
 	return poolNames

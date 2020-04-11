@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"crypto/hmac"
 	"crypto/md5"
-	"encoding/hex"
 	"fmt"
 	"net"
 
@@ -48,9 +47,8 @@ func initCfg() {
 	// do BindPFlags() after pflag parse done
 	if err := config.V().BindPFlags(flag.CommandLine); err != nil {
 		panic(fmt.Errorf("viper.BindPFlags err: %w", err))
-	} else {
-		//fmt.Println("viper.BindPFlags done")
 	}
+
 	cfg = &config.BrdConfig{
 		Provider:     config.V().GetString("provider"),
 		Addr:         config.V().GetString("addr"),
@@ -236,7 +234,7 @@ func smtpdAuth(remoteAddr net.Addr, mechanism string, username []byte, password 
 		return true, nil
 	}
 	errAuth := fmt.Errorf("invalid username or password")
-	if bytes.Compare(username, []byte(cfg.AuthUsername)) != 0 {
+	if !bytes.Equal(username, []byte(cfg.AuthUsername)) {
 		zap.S().Debugf("username expect: %s, actual: %s", cfg.AuthUsername, username)
 		// username invalid
 		return false, errAuth
@@ -247,34 +245,16 @@ func smtpdAuth(remoteAddr net.Addr, mechanism string, username []byte, password 
 		s := make([]byte, 0, d.Size())
 		expectPwdHmac := []byte(fmt.Sprintf("%x", d.Sum(s)))
 		// password invalid
-		if bytes.Compare(password, expectPwdHmac) != 0 {
+		if !bytes.Equal(password, expectPwdHmac) {
 			zap.S().Debugf("password expect: %s, actual: %s", expectPwdHmac, password)
 			return false, errAuth
 		}
 	} else {
 		// AUTH LOGIN/PLAIN
-		if bytes.Compare(password, []byte(cfg.AuthPassword)) != 0 {
+		if !bytes.Equal(password, []byte(cfg.AuthPassword)) {
 			zap.S().Debugf("password expect: %s, actual: %s", cfg.AuthPassword, password)
 			return false, errAuth
 		}
 	}
 	return true, nil
-}
-
-func CRAMMD5GetExpected(username, secret, challenge string) string {
-	var ret []byte
-	hash := hmac.New(md5.New, []byte(secret))
-	hash.Write([]byte(challenge))
-	ret = hash.Sum(nil)
-	return username + " " + hex.EncodeToString(ret)
-}
-
-func boolParam(key string) bool {
-	val, _ := flag.CommandLine.GetBool(key)
-	return val
-}
-
-func stringParam(key string) string {
-	val, _ := flag.CommandLine.GetString(key)
-	return val
 }
