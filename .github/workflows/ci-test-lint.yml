@@ -1,0 +1,58 @@
+name: test_lint
+
+on:
+  push:
+    branches: [ master ]
+    tags:
+    paths-ignore:
+      - '.github/workflows/ci-container-image.yml'
+      - '.gitignore'
+      - 'config.toml'
+      - 'lint.sh'
+      - '*.md'
+  pull_request:
+    branches: [ master ]
+    paths-ignore:
+      - '.github/workflows/ci-container-image.yml'
+      - '.gitignore'
+      - 'config.toml'
+      - 'lint.sh'
+      - '*.md'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: install go
+        uses: actions/setup-go@v1
+        with:
+          go-version: 1.13
+
+      - name: install golangci-lint and goveralls
+        run: |
+          curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh| sh -s -- -b $GITHUB_WORKSPACE v1.23.0
+          go get -u github.com/mattn/goveralls
+
+      - name: test and lint
+        run: |
+          go test -timeout=60s -covermode=count -coverprofile=$GITHUB_WORKSPACE/profile.cov_tmp ./...
+          go test -race ./...
+          cat $GITHUB_WORKSPACE/profile.cov_tmp | grep -v "_mock.go" > $GITHUB_WORKSPACE/profile.cov
+          $GITHUB_WORKSPACE/golangci-lint --config ${GITHUB_WORKSPACE}/.golangci.yml run  ./...
+        working-directory: .
+        env:
+#          GOFLAGS: "-mod=readonly"
+          TZ: "Asia/Hong_Kong"
+          BRD_DEBUG: ${{secrets.BRD_DEBUG}}
+          SENDGRID_FROM: "remark42-ci@sg.ttys3.net"
+          SENDGRID_TO: ${{ secrets.SG_SMTP_TO }}
+          SENDGRID_API_KEY: ${{ secrets.SG_SMTP_PASSWORD }}
+
+      - name: submit coverage
+        run: $(go env GOPATH)/bin/goveralls -service="github" -coverprofile=$GITHUB_WORKSPACE/profile.cov
+        working-directory: backend
+        env:
+          COVERALLS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
