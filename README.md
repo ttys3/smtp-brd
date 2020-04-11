@@ -1,3 +1,6 @@
+![build_container_image](https://github.com/ttys3/smtp-brd/workflows/build_container_image/badge.svg?branch=ctr) 
+![test_lint](https://github.com/ttys3/smtp-brd/workflows/test_lint/badge.svg?branch=master)
+
 # smtp-brd
 
 ## description
