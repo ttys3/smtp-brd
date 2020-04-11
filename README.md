@@ -9,6 +9,29 @@ the main goal of this project is setup as a side container
 
 for remark42 comment system to send email via `WEB API`
 
+## available providers
+
+```ini
+mailgun
+sendgrid
+```
+
+## run with podman
+```bash
+sudo podman run -d --name smtpbrd -p 2525:2525 \
+-e BRD_PROVIDER=sendgrid \
+-e BRD_SENDGRID_API_KEY='SG-KEY-HERE' \
+80x86/smtp-brd:latest
+```
+
+## run with Docker
+```bash
+sudo docker run -d --name smtpbrd -p 2525:2525 \
+-e BRD_PROVIDER=sendgrid \
+-e BRD_SENDGRID_API_KEY='SG-KEY-HERE' \
+80x86/smtp-brd:latest
+```
+
 ## config 
 
 there are 3 ways to config
