@@ -1,3 +1,4 @@
 /.github/
 /smtp-brd
 /smtp-brd.dbg
+/.env.local
