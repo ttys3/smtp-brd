@@ -39,6 +39,7 @@ func init() {
 	flag.StringP("key", "k", "", "TLS private key file path")
 	flag.StringP("user", "u", "", "SMTP AUTH username")
 	flag.StringP("secret", "s", "", "SMTP AUTH password")
+	flag.CommandLine.MarkHidden("debug")
 }
 
 func initCfg() {
