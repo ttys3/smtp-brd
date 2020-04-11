@@ -21,7 +21,7 @@ func init() {
 	flag.Int("mailgun.timeout", 10, "Mailgun timeout")
 	registerFactory("mailgun", func() Sender {
 		timeout := config.V().GetInt("mailgun.timeout")
-		return NewMailgunSender(config.V().GetString("mailgun.domain"), config.V().GetString("mailgun.api_key"), time.Second * time.Duration(timeout))
+		return NewMailgunSender(config.V().GetString("mailgun.domain"), config.V().GetString("mailgun.api_key"), time.Second*time.Duration(timeout))
 	})
 }
 
@@ -39,7 +39,7 @@ func NewMailgunSender(Domain, APIKey string, TimeOut time.Duration) Sender {
 	if TimeOut == 0 {
 		TimeOut = DefaultEmailTimeout
 	}
-	sender := &MailgunSender {
+	sender := &MailgunSender{
 		Domain:  Domain,
 		APIKey:  APIKey,
 		Timeout: TimeOut,
@@ -71,7 +71,7 @@ func (s *MailgunSender) Send(from string, to string, subject string, bodyPlain s
 	// You can edit the unsubscribed address list from your Control Panel or through the API.
 	// see more info via https://documentation.mailgun.com/en/latest/api-unsubscribes.html
 	// and https://documentation.mailgun.com/en/latest/user_manual.html#tracking-unsubscribes
-	if s.Message.Headers != nil && len(s.Message.Headers) > 0{
+	if s.Message.Headers != nil && len(s.Message.Headers) > 0 {
 		keys := make([]string, 0, len(s.Message.Headers))
 		for k := range s.Message.Headers {
 			keys = append(keys, k)

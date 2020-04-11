@@ -19,7 +19,7 @@ type SendgridSender struct {
 	sg          *sendgrid.Client
 	APIKey      string        // the SendGrid API key
 	Timeout     time.Duration // TCP connection timeout
-	Message parser.Message
+	Message     parser.Message
 	ContentType string // text/plain or text/html
 }
 
@@ -28,7 +28,7 @@ func init() {
 	flag.Int("sendgrid.timeout", 10, "SendGrid timeout")
 	registerFactory("sendgrid", func() Sender {
 		timeout := config.V().GetInt("sendgrid.timeout")
-		return NewSendgridSender(config.V().GetString("sendgrid.api_key"), time.Second * time.Duration(timeout))
+		return NewSendgridSender(config.V().GetString("sendgrid.api_key"), time.Second*time.Duration(timeout))
 	})
 }
 
@@ -74,7 +74,7 @@ func (s *SendgridSender) Send(from string, to string, subject string, bodyPlain 
 	}
 	// 2xx responses indicate a successful request
 	// see https://sendgrid.com/docs/API_Reference/Web_API_v3/Mail/errors.html
-	if resp.StatusCode % 100 != 2 {
+	if resp.StatusCode%100 != 2 {
 		return fmt.Errorf("sendgrid: send failed with err: %+v", resp.Body)
 	}
 	fmt.Printf("sendgrid: send to %s success, StatusCode: %d\n", to, resp.StatusCode)

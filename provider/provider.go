@@ -11,7 +11,7 @@ type providerPool map[string]Factory
 
 var providers = make(providerPool)
 
-type Factory func () Sender
+type Factory func() Sender
 
 func registerFactory(provider string, fac Factory) {
 	providers[provider] = fac

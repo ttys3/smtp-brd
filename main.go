@@ -29,15 +29,15 @@ var cfg *config.BrdConfig
 
 func init() {
 	flag.BoolP("version", "v", false, "show app version")
-	flag.BoolP( "help", "h", false, "show help")
+	flag.BoolP("help", "h", false, "show help")
 	flag.BoolP("debug", "d", false, "enable debug")
 	flag.StringP("provider", "P", "mailgun", "enable email send service provider")
 	flag.StringP("addr", "l", "0.0.0.0", "listen address")
 	flag.StringP("port", "p", "2525", "listen port")
-	flag.BoolP( "tls", "t", false, "enable TLS")
-	flag.StringP( "cert", "c", "", "TLS certificate file path")
+	flag.BoolP("tls", "t", false, "enable TLS")
+	flag.StringP("cert", "c", "", "TLS certificate file path")
 	flag.StringP("key", "k", "", "TLS private key file path")
-	flag.StringP( "user", "u", "", "SMTP AUTH username")
+	flag.StringP("user", "u", "", "SMTP AUTH username")
 	flag.StringP("secret", "s", "", "SMTP AUTH password")
 }
 
@@ -66,7 +66,7 @@ func initCfg() {
 
 func mailHandler(origin net.Addr, from string, to []string, data []byte) {
 	// skip all Received header
-	msg , err := parser.ParseMail(data)
+	msg, err := parser.ParseMail(data)
 	if err != nil {
 		zap.S().Errorf("parse mail failed with err: %s, received mail from %s to %s with subject %s, request origin: %s",
 			err, from, to[0], msg.Subject, origin.String())
@@ -75,7 +75,7 @@ func mailHandler(origin net.Addr, from string, to []string, data []byte) {
 	zap.S().Debugf("parse mail success, received mail from %s for %s with subject %s, request origin: %s\n plainMessage: %s\n htmlMessage: %s\n, attachments: %#v",
 		from, to[0], msg.Subject, origin.String(),
 		msg.BodyPlain, msg.BodyHtml, msg.Attachments,
-		)
+	)
 	if err := curSender.Send(from, to[0], msg.Subject, string(msg.BodyPlain), string(msg.BodyHtml)); err != nil {
 		zap.S().Errorf("mail send failed with err: %s, from: %s, to: %s, subject: %s, request origin: %s", err,
 			from, to[0], msg.Subject, origin.String())
@@ -107,7 +107,7 @@ func main() {
 	if cfg.Port == "" {
 		zap.S().Fatalf("listen port can not be empty")
 	}
-	addr :=  cfg.Addr + ":" + cfg.Port
+	addr := cfg.Addr + ":" + cfg.Port
 	zap.S().Infof("server listen on %s", addr)
 
 	if cfg.AuthUsername != "" && cfg.AuthPassword != "" {
