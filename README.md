@@ -37,17 +37,25 @@ add support for Cc, Bcc and attachment
 
 ## FAQ
 
-smtp.plainAuth failed: unencrypted connection
+1. `smtp.plainAuth failed: unencrypted connection`
 
-The error is because the Go SMTP package doesn't allow authentication without encryption. 
-From https://godoc.org/net/smtp#PlainAuth
+    The error is because the Go SMTP package doesn't allow authentication without encryption. 
+    From https://godoc.org/net/smtp#PlainAuth
+    
+        PlainAuth will only send the credentials if the connection is using TLS 
+        or is connected to localhost. Otherwise authentication 
+        will fail with an error, without sending the credentials.
+    
+    You need either to setup TLS on your SMTP server, 
+    use localhost as a relay or disable authentication. 
 
-    PlainAuth will only send the credentials if the connection is using TLS 
-    or is connected to localhost. Otherwise authentication 
-    will fail with an error, without sending the credentials.
+2. got `x509: certificate signed by unknown authority` error while TLS enabled
 
-You need either to setup TLS on your SMTP server, 
-use localhost as a relay or disable authentication. 
+    The error is because the Go net/smtp client tls.Config.InsecureSkipVerify is enforced to true
+    
+    if TLS enabled, be sure your have valid certificate
+    
+    self-signed cert is not allowed by golang smtp client
 
 ## thanks
 
