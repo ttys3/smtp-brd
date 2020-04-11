@@ -9,7 +9,6 @@ linters:
     - unconvert
     - megacheck
     - structcheck
-    - gas
     - gocyclo
     - dupl
     - misspell
