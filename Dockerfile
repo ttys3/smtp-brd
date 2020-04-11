@@ -5,7 +5,7 @@ WORKDIR /build
 
 ARG DIST_MIRROR=no
 ARG GOPROXY=direct
-ARG HTTP_PROXY
+ARG LOCAL_PROXY
 
 ENV TZ="Asia/Hong_Kong"
 
@@ -15,7 +15,7 @@ RUN set -eux; \
     ln -sf /usr/share/zoneinfo/${TZ} /etc/localtime; \
     echo "${TZ}" >  /etc/timezone; \
     echo "current date is: $(date)"; \
-    http_proxy="${HTTP_PROXY}" apt-get update && http_proxy="${HTTP_PROXY}" apt-get install -y --no-install-recommends ca-certificates; \
+    http_proxy="${LOCAL_PROXY}" apt-get update && http_proxy="${LOCAL_PROXY}" apt-get install -y --no-install-recommends ca-certificates; \
 	update-ca-certificates -f; \
     [ $DIST_MIRROR="yes" ] && sed -i 's|http://deb.debian.org|https://mirrors.ustc.edu.cn|g' /etc/apt/sources.list; \
     apt-get update; \

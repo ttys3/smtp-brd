@@ -32,5 +32,5 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
           repository: 80x86/smtp-brd
           tags: latest
-          build_args: VCS_REF=${GITHUB_SHA:0:7},BUILD_DATE=$(date +%Y%m%d),HTTP_PROXY=""
+          build_args: VCS_REF=${GITHUB_SHA:0:7},BUILD_DATE=$(date +%Y%m%d),LOCAL_PROXY=""
 

@@ -18,7 +18,7 @@ $(TARGET_EXEC_NAME).dbg:
 buildah:
 	sudo HTTP_PROXY=http://127.0.0.1:7070 buildah bud --network host --format=docker \
 	--build-arg GOPROXY=https://goproxy.cn,direct \
-	--build-arg HTTP_PROXY=http://127.0.0.1:7070 \
+	--build-arg LOCAL_PROXY=http://127.0.0.1:7070 \
 	--build-arg DIST_MIRROR=yes \
 	--build-arg BUILD_DATE=$(DATE_VERSION) \
 	--build-arg VCS_REF=$(GIT_VERSION) \
@@ -27,6 +27,7 @@ buildah:
 docker:
 	sudo docker build --network host \
 	--build-arg DIST_MIRROR=no \
+	--build-arg LOCAL_PROXY="" \
 	--build-arg BUILD_DATE=$(DATE_VERSION) \
 	--build-arg VCS_REF=$(GIT_VERSION) \
 	-t 80x86/smtp-brd:latest ./
