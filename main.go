@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/hmac"
 	"crypto/md5"
+	"encoding/hex"
 	"fmt"
 	"net"
 
@@ -117,9 +118,6 @@ func main() {
 	}
 	addr :=  listenAddr + ":" + listenPort
 	zap.S().Infof("server listen on %s", addr)
-	if tlsEn {
-		zap.S().Info("TLS enabled")
-	}
 
 	if authUsername != "" && authPassword != "" {
 		zap.S().Info("SMTP AUTH enabled")
@@ -151,7 +149,14 @@ func main() {
 		err = srv.ConfigureTLS(certFile, keyFile)
 		if err != nil {
 			zap.S().Fatalf("TLS server start failed with error: %s", err)
+		} else {
+			// golang net/smtp client tls.Config.InsecureSkipVerify is enforced to true
+			// if TLS enabled, be sure your have valid certificate
+			// self-signed cert is not allowed by golang smtp client
+			zap.S().Infof("TLS server started. key file: %s, cert file: %s", keyFile, certFile)
 		}
+		srv.TLSListener = true
+		srv.TLSRequired = true
 	}
 	err = srv.ListenAndServe()
 	if err != nil {
@@ -215,9 +220,9 @@ func smtpdLogger(logType string) smtpd.LogFunc {
 // HMAC_HASH=$(echo -ne ${SERVER_SEND_KEY} | openssl dgst -md5 -hmac "secret")
 // got the final message:
 // echo -ne "admin ${HMAC_HASH}" | base64
-func smtpdAuth(remoteAddr net.Addr, mechanism string, username []byte, password []byte, sharedKey []byte) (bool, error) {
-	zap.S().Debugf("[smtp.AuthHandler] remoteAddr: %s, mechanism: %s, got username: [%s], password: [%s], sharedKey: [%s]",
-		remoteAddr, mechanism, username, password, sharedKey)
+func smtpdAuth(remoteAddr net.Addr, mechanism string, username []byte, password []byte, challenge []byte) (bool, error) {
+	zap.S().Debugf("[smtp.AuthHandler] remoteAddr: %s, mechanism: %s, got username: [%s], password: [%s], challenge: [%s]",
+		remoteAddr, mechanism, username, password, challenge)
 	// skip auth if the server does not require
 	if authUsername == "" || authPassword == "" {
 		return true, nil
@@ -230,7 +235,7 @@ func smtpdAuth(remoteAddr net.Addr, mechanism string, username []byte, password 
 	}
 	if mechanism == "CRAM-MD5" {
 		d := hmac.New(md5.New, []byte(authPassword))
-		d.Write(sharedKey)
+		d.Write(challenge)
 		s := make([]byte, 0, d.Size())
 		expectPwdHmac := []byte(fmt.Sprintf("%x", d.Sum(s)))
 		// password invalid
@@ -246,4 +251,12 @@ func smtpdAuth(remoteAddr net.Addr, mechanism string, username []byte, password 
 		}
 	}
 	return true, nil
+}
+
+func CRAMMD5GetExpected(username, secret, challenge string) string {
+	var ret []byte
+	hash := hmac.New(md5.New, []byte(secret))
+	hash.Write([]byte(challenge))
+	ret = hash.Sum(nil)
+	return username + " " + hex.EncodeToString(ret)
 }
