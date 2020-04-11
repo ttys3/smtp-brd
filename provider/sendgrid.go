@@ -24,11 +24,11 @@ type SendgridSender struct {
 }
 
 func init() {
-	flag.String("sg.api_key", "", "SendGrid API key")
-	flag.Int("sg.timeout", 10, "SendGrid timeout")
+	flag.String("sendgrid.api_key", "", "SendGrid API key")
+	flag.Int("sendgrid.timeout", 10, "SendGrid timeout")
 	registerFactory("sendgrid", func() Sender {
-		timeout := config.V().GetInt("sg.timeout")
-		return NewSendgridSender(config.V().GetString("sg.api_key"), time.Second * time.Duration(timeout))
+		timeout := config.V().GetInt("sendgrid.timeout")
+		return NewSendgridSender(config.V().GetString("sendgrid.api_key"), time.Second * time.Duration(timeout))
 	})
 }
 

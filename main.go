@@ -64,6 +64,9 @@ func initCfg() {
 	}
 	showVersion = config.V().GetBool("version")
 	showHelp = config.V().GetBool("help")
+	if cfg.Debug {
+		config.V().Debug()
+	}
 }
 
 func mailHandler(origin net.Addr, from string, to []string, data []byte) {

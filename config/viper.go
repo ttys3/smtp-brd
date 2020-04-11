@@ -27,7 +27,8 @@ type BrdConfig struct {
 
 func init() {
 	v = viper.NewWithOptions(viper.EnvKeyReplacer(strings.NewReplacer(".", "_")))
-	v.SetConfigName("config.toml") // name of config file
+	v.SetConfigName("config") //do not include extension in order to auto lookup
+	v.SetConfigType("toml")
 	v.AddConfigPath(".")           // optionally look for config in the working directory
 	v.AddConfigPath("/etc/brd")    // path to look for the config file in
 	v.SetEnvPrefix("BRD")
@@ -44,8 +45,9 @@ func init() {
 			// Config file was found but another error was produced
 			panic(fmt.Errorf("error parse config file: %s \n", err))
 		}
+	} else {
+		fmt.Println("config loaded: " + v.ConfigFileUsed())
 	}
-	//fmt.Println("viper config read done")
 }
 
 func V() *viper.Viper {

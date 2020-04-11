@@ -16,12 +16,12 @@ import (
 )
 
 func init() {
-	flag.String("mg.api_key", "", "Mailgun API key")
-	flag.String("mg.domain", "", "Mailgun domain")
-	flag.Int("mg.timeout", 10, "Mailgun timeout")
+	flag.String("mailgun.api_key", "", "Mailgun API key")
+	flag.String("mailgun.domain", "", "Mailgun domain")
+	flag.Int("mailgun.timeout", 10, "Mailgun timeout")
 	registerFactory("mailgun", func() Sender {
-		timeout := config.V().GetInt("mg.timeout")
-		return NewMailgunSender(config.V().GetString("mg.domain"), config.V().GetString("mg.api_key"), time.Second * time.Duration(timeout))
+		timeout := config.V().GetInt("mailgun.timeout")
+		return NewMailgunSender(config.V().GetString("mailgun.domain"), config.V().GetString("mailgun.api_key"), time.Second * time.Duration(timeout))
 	})
 }
 
