@@ -192,9 +192,14 @@ func initZapLogger(dbg bool) func() {
 		zap.S().Infof("debug enabled")
 	}
 	return func() {
+		if logger == nil {
+			return
+		}
 		// flushes buffer, if any
 		if err := logger.Sync(); err != nil {
-			fmt.Printf("zap: Sync() failed with error: %s\n", err)
+			if dbg {
+				fmt.Printf("zap: Sync() failed with error: %s\n", err)
+			}
 		}
 	}
 }
