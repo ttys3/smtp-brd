@@ -1,0 +1,36 @@
+name: build_container_image
+
+on:
+  push:
+    branches: [ ctr ]
+    paths-ignore:
+      - '.github/workflows/ci-test-lint.yml'
+      - '.gitignore'
+      - 'config.toml'
+      - 'lint.sh'
+      - '*.md'
+  pull_request:
+    branches: [ ctr ]
+    paths-ignore:
+      - '.github/workflows/ci-test-lint.yml'
+      - '.gitignore'
+      - 'config.toml'
+      - 'lint.sh'
+      - '*.md'
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Build and push Docker images
+        uses: docker/build-push-action@v1.0.1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          repository: 80x86/smtp-brd
+          tags: latest
+          build_args: VCS_REF=${GITHUB_SHA:0:7},BUILD_DATE=$(date +%Y%m%d)
+
