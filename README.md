@@ -1,7 +1,7 @@
+# smtp-brd
+
 ![build_container_image](https://github.com/ttys3/smtp-brd/workflows/build_container_image/badge.svg?branch=ctr)
 ![test_lint](https://github.com/ttys3/smtp-brd/workflows/test_lint/badge.svg?branch=master)
-
-# smtp-brd
 
 ## description
 
@@ -61,7 +61,7 @@ run `smtp-brd --help` for full config options
 
 the `environment variables` is recommend way for running in container.
 
-**available config env vars and their default value**
+### available config env vars and their default value
 
 ```ini
     BRD_ADDR="0.0.0.0"
@@ -78,6 +78,21 @@ the `environment variables` is recommend way for running in container.
     BRD_MAILGUN_TIMEOUT=10
     BRD_SENDGRID_API_KEY=""
     BRD_SENDGRID_TIMEOUT=10
+```
+
+### system related base env vars
+
+```ini
+TZ
+PUID=1000
+PGID=1000
+```
+
+you can run the container in your own timezone,
+just to specific the env var, for example:
+
+```ini
+TZ=America/Los_Angeles
 ```
 
 ## TODO
@@ -97,17 +112,17 @@ just set the correct value for `BRD_CERT` and `BRD_KEY`
 
 1. `smtp.plainAuth failed: unencrypted connection`
 
+    You need either to setup TLS on your SMTP server,
+    use localhost as a relay or disable authentication.
+    the answer come from  
+    [this issue](https://github.com/prometheus/alertmanager/issues/1358#issuecomment-386209698)
+
     The error is because the Go SMTP package doesn't allow authentication without encryption.
     From <https://godoc.org/net/smtp#PlainAuth>
 
-        PlainAuth will only send the credentials if the connection is using TLS 
-        or is connected to localhost. Otherwise authentication 
+    >   PlainAuth will only send the credentials if the connection is using TLS
+        or is connected to localhost. Otherwise authentication
         will fail with an error, without sending the credentials.
-
-    You need either to setup TLS on your SMTP server,
-    use localhost as a relay or disable authentication.
-
-    the answer come from  [this issue](https://github.com/prometheus/alertmanager/issues/1358#issuecomment-386209698)
 
 2. got `x509: certificate signed by unknown authority` error while TLS enabled
 
@@ -119,21 +134,14 @@ just set the correct value for `BRD_CERT` and `BRD_KEY`
 
 ## thanks
 
-**mail parser**
+**mail parser** this project use `github.com/veqryn/go-email/email` to parse email  
+[repo](https://github.com/veqryn/go-email/email)
 
-this project use `github.com/veqryn/go-email/email` to parse email
+**minimal SMTP server** use `github.com/mhale/smtpd` [repo](https://github.com/mhale/smtpd),  
+which seems based on the work of [Brad Fitzpatrick's go-smtpd](https://github.com/bradfitz/go-smtpd)
 
-**minimal SMTP server**
+**flags parser** `github.com/spf13/pflag` [repo](https://github.com/spf13/pflag)
 
-use `github.com/mhale/smtpd`, which seems based on the work of [Brad Fitzpatrick's go-smtpd](https://github.com/bradfitz/go-smtpd)
+**config manager** `github.com/spf13/viper` [repo](https://github.com/spf13/viper)
 
-**flags parser**
-
-`github.com/spf13/pflag`
-
-**config manager**
-
-`github.com/spf13/viper`
-
-**logger**
-[go.uber.org/zap](https://github.com/uber-go/zap)
+**logger** `go.uber.org/zap` [repo](https://github.com/uber-go/zap)
