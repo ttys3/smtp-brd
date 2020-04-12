@@ -36,7 +36,6 @@ type Message struct {
 func ParseMail(message []byte) (m Message, err error) {
 	r := bytes.NewReader(message)
 	msg, err := email.ParseMessage(r)
-
 	if err != nil {
 		return
 	}

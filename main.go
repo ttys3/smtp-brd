@@ -17,15 +17,21 @@ import (
 	"github.com/ttys3/smtp-brd/provider"
 )
 
-var appName = "smtp-brd"
-var Version = "dev"
+var (
+	appName = "smtp-brd"
+	Version = "dev"
+)
 
-var logger *zap.Logger
-var sndrFactory provider.Factory
+var (
+	logger      *zap.Logger
+	sndrFactory provider.Factory
+)
 
-var showVersion bool
-var showHelp bool
-var cfg *config.BrdConfig
+var (
+	showVersion bool
+	showHelp    bool
+	cfg         *config.BrdConfig
+)
 
 func init() {
 	flag.StringP("provider", "P", "mailgun", "enable email send service provider")
@@ -169,8 +175,8 @@ func initZapLogger(dbg bool) func() {
 	// prod stackLevel := ErrorLevel
 	// dev stackLevel = WarnLevel
 	zapCfg := zap.NewDevelopmentConfig()
-	//zapCfg := zap.NewProductionConfig()
-	//zapCfg.Encoding = "console"
+	// zapCfg := zap.NewProductionConfig()
+	// zapCfg.Encoding = "console"
 	if !dbg {
 		zapCfg.DisableCaller = true
 		zapCfg.Level = zap.NewAtomicLevelAt(zapcore.InfoLevel)
@@ -182,9 +188,9 @@ func initZapLogger(dbg bool) func() {
 	zapCfg.EncoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
 	tmpLogger, _ := zapCfg.Build()
 	logger = tmpLogger.Named("[" + appName + "]")
-	//logger = logger.WithOptions(zap.AddCallerSkip(1))
-	//The default global logger used by zap.L() and zap.S() is a no-op logger.
-	//To configure the global loggers, you must use ReplaceGlobals.
+	// logger = logger.WithOptions(zap.AddCallerSkip(1))
+	// The default global logger used by zap.L() and zap.S() is a no-op logger.
+	// To configure the global loggers, you must use ReplaceGlobals.
 	zap.ReplaceGlobals(logger)
 	if dbg {
 		zap.S().Infof("debug enabled")

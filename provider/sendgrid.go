@@ -15,9 +15,9 @@ import (
 
 // MailgunConfig contain settings for mailgun API
 type SendgridSender struct {
-	sg          *sendgrid.Client
-	APIKey      string        // the SendGrid API key
-	Timeout     time.Duration // TCP connection timeout
+	sg      *sendgrid.Client
+	APIKey  string        // the SendGrid API key
+	Timeout time.Duration // TCP connection timeout
 	BaseSender
 }
 
@@ -26,7 +26,10 @@ func init() {
 	flag.Int("sendgrid.timeout", 10, "SendGrid timeout")
 	registerFactory("sendgrid", func() Sender {
 		timeout := config.V().GetInt("sendgrid.timeout")
-		return NewSendgridSender(config.V().GetString("sendgrid.api_key"), time.Second*time.Duration(timeout))
+		return NewSendgridSender(
+			config.V().GetString("sendgrid.api_key"),
+			time.Second*time.Duration(timeout),
+		)
 	})
 }
 
@@ -66,7 +69,7 @@ func (s *SendgridSender) Send(from string, to string, subject string, bodyPlain 
 		return fmt.Errorf("empty to. at least one receipt should be provided")
 	}
 
-	//mail.NewV3MailInit() is quick for send single mail
+	// mail.NewV3MailInit() is quick for send single mail
 	// create new *SGMailV3
 	m := mail.NewV3Mail()
 	// the from address must match a verified Sender Identity

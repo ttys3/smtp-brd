@@ -23,13 +23,13 @@ type BrdConfig struct {
 
 func init() {
 	v = viper.NewWithOptions(viper.EnvKeyReplacer(strings.NewReplacer(".", "_")))
-	v.SetConfigName("config") //do not include extension in order to auto lookup
+	v.SetConfigName("config") // do not include extension in order to auto lookup
 	v.SetConfigType("toml")
 	v.AddConfigPath(".")        // optionally look for config in the working directory
 	v.AddConfigPath("/etc/brd") // path to look for the config file in
 	v.SetEnvPrefix("BRD")
 	v.AutomaticEnv()
-	//v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+	// v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 
 	v.Set("Verbose", true)
 

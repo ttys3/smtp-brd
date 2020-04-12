@@ -20,16 +20,20 @@ func init() {
 	flag.Int("mailgun.timeout", 10, "Mailgun timeout")
 	registerFactory("mailgun", func() Sender {
 		timeout := config.V().GetInt("mailgun.timeout")
-		return NewMailgunSender(config.V().GetString("mailgun.domain"), config.V().GetString("mailgun.api_key"), time.Second*time.Duration(timeout))
+		return NewMailgunSender(
+			config.V().GetString("mailgun.domain"),
+			config.V().GetString("mailgun.api_key"),
+			time.Second*time.Duration(timeout),
+		)
 	})
 }
 
 // MailgunConfig contain settings for mailgun API
 type MailgunSender struct {
-	mg          *mailgun.MailgunImpl
-	Domain      string
-	APIKey      string
-	Timeout     time.Duration // TCP connection timeout
+	mg      *mailgun.MailgunImpl
+	Domain  string
+	APIKey  string
+	Timeout time.Duration // TCP connection timeout
 	BaseSender
 }
 
