@@ -27,6 +27,8 @@ sendgrid
 ### run with kube pod
 
 ```
+wget https://github.com/ttys3/smtp-brd/raw/master/smtpbrd-pod.yaml
+# edit smtpbrd-pod.yaml as your need
 sudo podman play kube smtpbrd-pod.yaml
 ```
 
@@ -44,6 +46,8 @@ sudo podman run -d --name smtpbrd -p 2525:2525 \
 ### run wich docker compose
 
 ```bash
+wget https://github.com/ttys3/smtp-brd/raw/master/docker-compose.yml
+# edit docker-compose.yml as your need
 docker-compose -f docker-compose.yml up -d
 ```
 
