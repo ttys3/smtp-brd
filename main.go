@@ -182,7 +182,7 @@ func initZapLogger(dbg bool) func() {
 	zapCfg.EncoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
 	tmpLogger, _ := zapCfg.Build()
 	logger = tmpLogger.Named("[" + appName + "]")
-	logger = logger.WithOptions(zap.AddCallerSkip(1))
+	//logger = logger.WithOptions(zap.AddCallerSkip(1))
 	//The default global logger used by zap.L() and zap.S() is a no-op logger.
 	//To configure the global loggers, you must use ReplaceGlobals.
 	zap.ReplaceGlobals(logger)
