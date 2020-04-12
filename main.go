@@ -28,17 +28,17 @@ var showHelp bool
 var cfg *config.BrdConfig
 
 func init() {
-	flag.BoolP("version", "v", false, "show app version")
-	flag.BoolP("help", "h", false, "show help")
-	flag.BoolP("debug", "d", false, "enable debug")
 	flag.StringP("provider", "P", "mailgun", "enable email send service provider")
 	flag.StringP("addr", "l", "0.0.0.0", "listen address")
 	flag.StringP("port", "p", "2525", "listen port")
 	flag.BoolP("tls", "t", false, "enable TLS")
-	flag.StringP("cert", "c", "", "TLS certificate file path")
-	flag.StringP("key", "k", "", "TLS private key file path")
+	flag.StringP("cert", "c", "/etc/brd/ssl/ssl.crt", "TLS certificate file path")
+	flag.StringP("key", "k", "/etc/brd/ssl/ssl.key", "TLS private key file path")
 	flag.StringP("user", "u", "", "SMTP AUTH username")
 	flag.StringP("secret", "s", "", "SMTP AUTH password")
+	flag.BoolP("version", "v", false, "show app version")
+	flag.BoolP("help", "h", false, "show help")
+	flag.BoolP("debug", "d", false, "enable debug")
 	flag.CommandLine.MarkHidden("debug")
 }
 

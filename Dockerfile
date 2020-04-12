@@ -25,7 +25,6 @@ RUN set -eux; \
     ./smtp-brd --version; \
     mkdir -p ./container/usr/local/bin; \
     cp -v ./smtp-brd ./container/usr/local/bin/smtp-brd; \
-    mkdir -p ./container/etc/brd/; \
     cp -v ./config.toml ./container/etc/brd/
 
 FROM 80x86/base-debian:buster-slim-amd64
@@ -48,8 +47,8 @@ COPY --from=builder /build/container/ /
 ENV BRD_ADDR="0.0.0.0" \
     BRD_PORT="2525" \
     BRD_TLS=false \
-    BRD_CERT="" \
-    BRD_KEY="" \
+    BRD_CERT="/etc/brd/ssl/ssl.crt" \
+    BRD_KEY="/etc/brd/ssl/ssl.key" \
     BRD_DEBUG=false \
     BRD_USER="" \
     BRD_SECRET="" \
@@ -64,4 +63,4 @@ WORKDIR /
 
 EXPOSE 2525
 
-
+CMD ["/usr/local/bin/smtp-brd"]

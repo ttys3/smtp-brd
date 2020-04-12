@@ -1,0 +1,23 @@
+debug = false
+provider = "sendgrid"
+addr = "0.0.0.0"
+port = "2525"
+tls = false
+cert = ""
+key = ""
+
+# set user and secret both to non-empty value to enable SMTP auth
+user = ""
+secret = ""
+
+# providers config
+# Mailgun
+[mailgun]
+api_key = ""
+domain = ""
+timeout = 10
+
+# SendGrid
+[sendgrid]
+api_key = ""
+timeout = 10

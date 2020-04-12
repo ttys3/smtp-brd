@@ -64,8 +64,8 @@ the `environment variables` is recommend way for running in container.
     BRD_ADDR="0.0.0.0"
     BRD_PORT="2525"
     BRD_TLS=false
-    BRD_CERT=""
-    BRD_KEY=""
+    BRD_CERT="/etc/brd/ssl/ssl.crt"
+    BRD_KEY="/etc/brd/ssl/ssl.key"
     BRD_DEBUG=false
     BRD_USER=""
     BRD_SECRET=""
@@ -81,6 +81,14 @@ the `environment variables` is recommend way for running in container.
 
 support multi `to`
 add support for Cc, Bcc and attachment
+
+## TLS
+
+default certificate stores under `/etc/brd/ssl`
+
+however in container, you can map it to any path as you like
+
+just set the correct value for `BRD_CERT` and `BRD_KEY`
 
 ## FAQ
 

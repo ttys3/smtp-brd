@@ -12,4 +12,6 @@ then
 	cp /etc/default/config.toml ${CFG_FILE}
 fi
 
-exec /bin/s6-svscan -t0 /etc/services.d
+#exec /bin/s6-svscan -t0 /etc/services.d
+# do not use s6 service
+/etc/services.d/brd/run
