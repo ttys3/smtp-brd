@@ -117,5 +117,5 @@ func (s *MailgunSender) SetTimeout(timeout time.Duration) {
 
 // String representation of Email object
 func (s *MailgunSender) String() string {
-	return fmt.Sprintf("provider.mailgrun: domain %s", s.Domain)
+	return fmt.Sprintf("provider.mailrun: domain %s", s.Domain)
 }
