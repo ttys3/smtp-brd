@@ -1,0 +1,71 @@
+# Generation of Kubernetes YAML is still under development!
+#
+# Save the output of this file and use kubectl create -f to import
+# it into Kubernetes.
+#
+# Created with podman-1.8.2
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: "2020-04-12T17:46:09Z"
+  labels:
+    app: smtpbrd
+  name: smtpbrd_pod
+spec:
+  containers:
+  - command:
+    - /entrypoint.sh
+    env:
+    - name: PATH
+      value: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+    - name: TERM
+      value: xterm-256color
+    - name: TZ
+      value: Asia/Shanghai
+    - name: BRD_PORT
+      value: "2525"
+    - name: BRD_PROVIDER
+      value: sendgrid
+    - name: BRD_SENDGRID_API_KEY
+    - name: BRD_SENDGRID_TIMEOUT
+      value: "10"
+    - name: BRD_MAILGUN_API_KEY
+    - name: BRD_MAILGUN_DOMAIN
+    - name: BRD_MAILGUN_TIMEOUT
+      value: "10"
+    - name: BRD_ADDR
+      value: 0.0.0.0
+    - name: BRD_USER
+    - name: BRD_SECRET
+    - name: BRD_TLS
+      value: "false"
+    - name: BRD_CERT
+      value: /etc/brd/ssl/ssl.crt
+    - name: BRD_KEY
+      value: /etc/brd/ssl/ssl.key
+    - name: PUID
+      value: "1000"
+    - name: UMASK_SET
+      value: "022"
+    - name: PGID
+      value: "100"
+    - name: container
+      value: podman
+    - name: HOSTNAME
+    image: docker.io/80x86/smtp-brd:latest
+    name: smtpbrd
+    ports:
+    - containerPort: 2525
+      hostIP: 127.0.0.1
+      hostPort: 2525
+      protocol: TCP
+    resources: {}
+    securityContext:
+      allowPrivilegeEscalation: true
+      capabilities: {}
+      privileged: false
+      readOnlyRootFilesystem: false
+      seLinuxOptions: {}
+    workingDir: /
+status: {}
+

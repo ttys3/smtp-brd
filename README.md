@@ -24,6 +24,14 @@ sendgrid
 
 ## run with podman
 
+### run with kube pod
+
+```
+sudo podman play kube smtpbrd-pod.yaml
+```
+
+### run with cli
+
 ```bash
 sudo podman run -d --name smtpbrd -p 2525:2525 \
 -e BRD_PROVIDER=sendgrid \
@@ -33,6 +41,13 @@ sudo podman run -d --name smtpbrd -p 2525:2525 \
 
 ## run with Docker
 
+### run wich docker compose
+
+```bash
+docker-compose -f docker-compose.yml up -d
+```
+
+### run with cli
 ```bash
 sudo docker run -d --name smtpbrd -p 2525:2525 \
 -e BRD_PROVIDER=sendgrid \
