@@ -1,11 +1,11 @@
-![build_container_image](https://github.com/ttys3/smtp-brd/workflows/build_container_image/badge.svg?branch=ctr) 
+![build_container_image](https://github.com/ttys3/smtp-brd/workflows/build_container_image/badge.svg?branch=ctr)
 ![test_lint](https://github.com/ttys3/smtp-brd/workflows/test_lint/badge.svg?branch=master)
 
 # smtp-brd
 
 ## description
 
-the main goal of this project is setup as a side container 
+the main goal of this project is setup as a side container
 
 for remark42 comment system to send email via `WEB API`
 
@@ -17,6 +17,7 @@ sendgrid
 ```
 
 ## run with podman
+
 ```bash
 sudo podman run -d --name smtpbrd -p 2525:2525 \
 -e BRD_PROVIDER=sendgrid \
@@ -25,6 +26,7 @@ sudo podman run -d --name smtpbrd -p 2525:2525 \
 ```
 
 ## run with Docker
+
 ```bash
 sudo docker run -d --name smtpbrd -p 2525:2525 \
 -e BRD_PROVIDER=sendgrid \
@@ -32,7 +34,7 @@ sudo docker run -d --name smtpbrd -p 2525:2525 \
 80x86/smtp-brd:latest
 ```
 
-## config 
+## config
 
 there are 3 ways to config
 
@@ -43,6 +45,7 @@ there are 3 ways to config
 take `mailgun.api_key` for example:
 
 config.toml
+
 ```toml
 # Mailgun
 [mailgun]
@@ -76,7 +79,7 @@ the `environment variables` is recommend way for running in container.
     BRD_SENDGRID_API_KEY=""
     BRD_SENDGRID_TIMEOUT=10
 ```
- 
+
 ## TODO
 
 support multi `to`
@@ -94,22 +97,24 @@ just set the correct value for `BRD_CERT` and `BRD_KEY`
 
 1. `smtp.plainAuth failed: unencrypted connection`
 
-    The error is because the Go SMTP package doesn't allow authentication without encryption. 
-    From https://godoc.org/net/smtp#PlainAuth
-    
+    The error is because the Go SMTP package doesn't allow authentication without encryption.
+    From <https://godoc.org/net/smtp#PlainAuth>
+
         PlainAuth will only send the credentials if the connection is using TLS 
         or is connected to localhost. Otherwise authentication 
         will fail with an error, without sending the credentials.
-    
-    You need either to setup TLS on your SMTP server, 
-    use localhost as a relay or disable authentication. 
+
+    You need either to setup TLS on your SMTP server,
+    use localhost as a relay or disable authentication.
+
+    the answer come from  [this issue](https://github.com/prometheus/alertmanager/issues/1358#issuecomment-386209698)
 
 2. got `x509: certificate signed by unknown authority` error while TLS enabled
 
     The error is because the Go net/smtp client tls.Config.InsecureSkipVerify is enforced to true
-    
+
     if TLS enabled, be sure your have valid certificate
-    
+
     self-signed cert is not allowed by golang smtp client
 
 ## thanks
@@ -132,5 +137,3 @@ use `github.com/mhale/smtpd`, which seems based on the work of [Brad Fitzpatrick
 
 **logger**
 [go.uber.org/zap](https://github.com/uber-go/zap)
-
-
