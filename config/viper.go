@@ -10,19 +10,15 @@ import (
 var v *viper.Viper
 
 type BrdConfig struct {
-	Provider string `toml:"provider"`
-
-	Addr string `toml:"addr"`
-	Port string `toml:"port"`
-
-	CertFile string `toml:"cert"`
-	KeyFile  string `toml:"key"`
-
+	Provider     string `toml:"provider"`
+	Addr         string `toml:"addr"`
+	Port         string `toml:"port"`
+	CertFile     string `toml:"cert"`
+	KeyFile      string `toml:"key"`
 	AuthUsername string `toml:"user"`
 	AuthPassword string `toml:"secret"`
-
-	TLS   bool `toml:"tls"`
-	Debug bool `toml:"debug"`
+	TLS          bool   `toml:"tls"`
+	Debug        bool   `toml:"debug"`
 }
 
 func init() {
