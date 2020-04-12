@@ -63,4 +63,4 @@ WORKDIR /
 
 EXPOSE 2525
 
-CMD ["/usr/local/bin/smtp-brd"]
+#CMD ["/usr/local/bin/smtp-brd"]
