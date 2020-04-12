@@ -25,7 +25,8 @@ RUN set -eux; \
     ./smtp-brd --version; \
     mkdir -p ./container/usr/local/bin; \
     cp -v ./smtp-brd ./container/usr/local/bin/smtp-brd; \
-    cp -v ./config.toml ./container/etc/brd/
+    cp -v ./config.toml ./container/etc/brd/; \
+    cp -v ./config.toml ./container/etc/default/
 
 FROM 80x86/base-debian:buster-slim-amd64
 
