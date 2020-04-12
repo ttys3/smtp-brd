@@ -83,7 +83,7 @@ the `environment variables` is recommend way for running in container.
 ### system related base env vars
 
 ```ini
-TZ
+TZ=Asia/Hong_Kong
 PUID=1000
 PGID=1000
 ```
