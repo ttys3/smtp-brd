@@ -61,7 +61,9 @@ run `smtp-brd --help` for full config options
 
 the `environment variables` is recommend way for running in container.
 
-### available config env vars and their default value
+## available config env vars and their default value
+
+### general env vars
 
 ```ini
     BRD_ADDR="0.0.0.0"
@@ -73,11 +75,6 @@ the `environment variables` is recommend way for running in container.
     BRD_USER=""
     BRD_SECRET=""
     BRD_PROVIDER="mailgun"
-    BRD_MAILGUN_API_KEY=""
-    BRD_MAILGUN_DOMAIN=""
-    BRD_MAILGUN_TIMEOUT=10
-    BRD_SENDGRID_API_KEY=""
-    BRD_SENDGRID_TIMEOUT=10
 ```
 
 ### system related base env vars
@@ -95,10 +92,25 @@ just to specific the env var, for example:
 TZ=America/Los_Angeles
 ```
 
+### provider related env vars
+
+`mailgun` provider
+```ini
+    BRD_MAILGUN_API_KEY=""
+    BRD_MAILGUN_DOMAIN=""
+    BRD_MAILGUN_TIMEOUT=10
+```
+
+`sendgrid` provider
+
+```ini
+    BRD_SENDGRID_API_KEY=""
+    BRD_SENDGRID_TIMEOUT=10
+```
+
 ## TODO
 
-support multi `to`
-add support for Cc, Bcc and attachment
+- more tests
 
 ## TLS
 
