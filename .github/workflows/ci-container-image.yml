@@ -7,7 +7,7 @@ on:
       - '.github/workflows/ci-test-lint.yml'
       - '.gitignore'
       - 'config.toml'
-      - 'lint.sh'
+      - '*.sh'
       - '*.md'
   pull_request:
     branches: [ ctr ]
@@ -15,7 +15,7 @@ on:
       - '.github/workflows/ci-test-lint.yml'
       - '.gitignore'
       - 'config.toml'
-      - 'lint.sh'
+      - '*.sh'
       - '*.md'
 
 jobs:

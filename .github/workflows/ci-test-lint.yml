@@ -8,7 +8,7 @@ on:
       - '.github/workflows/ci-container-image.yml'
       - '.gitignore'
       - 'config.toml'
-      - 'lint.sh'
+      - '*.sh'
       - '*.md'
   pull_request:
     branches: [ master ]
@@ -16,7 +16,7 @@ on:
       - '.github/workflows/ci-container-image.yml'
       - '.gitignore'
       - 'config.toml'
-      - 'lint.sh'
+      - '*.sh'
       - '*.md'
 
 jobs:
