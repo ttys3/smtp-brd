@@ -1,0 +1,29 @@
+version: '2'
+
+services:
+  smtpbrd:
+    image: 80x86/smtp-brd:latest
+    restart: unless-stopped
+    container_name: "smtpbrd"
+    network_mode: "bridge"
+    environment:
+      - BRD_ADDR="0.0.0.0"
+      - BRD_PORT="2525"
+      - BRD_TLS=false
+      - BRD_CERT="/etc/brd/ssl/ssl.crt"
+      - BRD_KEY="/etc/brd/ssl/ssl.key"
+      - BRD_USER=""
+      - BRD_SECRET=""
+      - BRD_PROVIDER="mailgun"
+      - BRD_MAILGUN_API_KEY=""
+      - BRD_MAILGUN_DOMAIN=""
+      - BRD_MAILGUN_TIMEOUT=10
+      - BRD_SENDGRID_API_KEY=""
+      - BRD_SENDGRID_TIMEOUT=10
+      - TZ="Asia/Hong_Kong"
+      - PUID=1000
+      - PGID=1000
+    ports:
+      - "127.0.0.1:2525:2525"
+#    volumes:
+#      - your-path-to-brd-config-dir:/etc/brd  # optional, persistent volume to store config.toml and ssl certificates
