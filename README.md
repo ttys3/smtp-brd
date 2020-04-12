@@ -9,6 +9,12 @@ the main goal of this project is setup as a side container
 
 for remark42 comment system to send email via `WEB API`
 
+- RFC compliance minimal SMTP server
+- TLS support
+- Authentication support ( LOGIN | PLAIN | CRAM-MD5 mechanisms that obeys RFC 4954)
+- Forward mail sending request to providers ( mailgun | sendgrid )
+- Easily run with Docker or Podman <https://hub.docker.com/r/80x86/smtp-brd>
+
 ## available providers
 
 ```ini
