@@ -111,6 +111,8 @@ func main() {
 		return
 	}
 
+	zap.S().Infof("config: %+v", cfg)
+
 	if cfg.TLS && (cfg.CertFile == "" || cfg.KeyFile == "") {
 		zap.S().Fatalf("TLS can not be enabled without specific cert and key path")
 	}
@@ -146,6 +148,9 @@ func initSmtpd(addr, appName, hostname string) {
 	var err error
 	srv := &smtpd.Server{Addr: addr, Handler: mailHandler, Appname: appName, Hostname: hostname}
 	srv.AuthHandler = smtpdAuth
+	if cfg.AuthUsername != "" && cfg.AuthPassword != "" {
+		srv.AuthRequired = true
+	}
 	// RFC 4954 specifies that plaintext authentication mechanisms such as LOGIN and PLAIN require a TLS connection.
 	// This can be explicitly overridden e.g. setting s.srv.AuthMechs["LOGIN"] = true.
 	// warn: if you disabled TLS, the go smtp client will only work if the hostname is "localhost", "127.0.0.1" or "::1"
