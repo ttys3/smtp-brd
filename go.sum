@@ -73,8 +73,6 @@ github.com/mailgun/mailgun-go/v4 v4.0.1/go.mod h1:R9kHUQBptF4iSEjhriCQizplCDwrnD
 github.com/mailru/easyjson v0.7.0 h1:aizVhC/NAAcKWb+5QsU1iNOZb4Yws5UO2I+aIprQITM=
 github.com/mailru/easyjson v0.7.0/go.mod h1:KAzv3t3aY1NaHWoQz1+4F1ccyAH66Jk7yos7ldAVICs=
 github.com/matttproud/golang_protobuf_extensions v1.0.1/go.mod h1:D8He9yQNgCq6Z5Ld7szi9bcBfOoFv/3dc6xSMkL2PC0=
-github.com/mhale/smtpd v0.0.0-20181125220505-3c4c908952b8 h1:DuLRJOD3tr0rbrwDXXw5mw8YRPl70y8RbFpUtCjzOkU=
-github.com/mhale/smtpd v0.0.0-20181125220505-3c4c908952b8/go.mod h1:qqKwvL5sfYgFxcMy96Kjx3TCorMfDaQBvmEL2nvdidc=
 github.com/mitchellh/mapstructure v1.1.2 h1:fmNYVwqnSfB9mZU6OS2O6GsXM+wcskZDuKQzvN1EDeE=
 github.com/mitchellh/mapstructure v1.1.2/go.mod h1:FVVH3fgwuzCH5S8UJGiWEs2h04kUh9fWfEaFds41c1Y=
 github.com/modern-go/concurrent v0.0.0-20180228061459-e0a39a4cb421/go.mod h1:6dJC0mAP4ikYIbvyc7fijjWJddQyLn8Ig3JB5CqoB9Q=
@@ -130,6 +128,8 @@ github.com/stretchr/testify v1.3.0/go.mod h1:M5WIy9Dh21IEIfnGCwXGc5bZfKNJtfHm1UV
 github.com/subosito/gotenv v1.2.0 h1:Slr1R9HxAlEKefgq5jn9U+DnETlIUa6HfgEzj0g5d7s=
 github.com/subosito/gotenv v1.2.0/go.mod h1:N0PQaV/YGNqwC0u51sEeR/aUtSLEXKX9iv69rRypqCw=
 github.com/tmc/grpc-websocket-proxy v0.0.0-20190109142713-0ad062ec5ee5/go.mod h1:ncp9v5uamzpCO7NfCPTXjqaC+bZgJeR0sMTm6dMHP7U=
+github.com/ttys3/smtpd v1.0.0 h1:1j3OCpNGvlxBLW+KsVmcOduIqUjfP1wSTuPb3USIg/I=
+github.com/ttys3/smtpd v1.0.0/go.mod h1:yXoFD8W2MYOw4dlN6Ue25WqBwer6Mg+kvOK4TAIRdGc=
 github.com/veqryn/go-email v0.0.0-20200124140746-a72ac14e358c h1:H9F/kPFM7UY+c8XGAZsxEj2OiFrTuQ4xn1t24aW9Nnk=
 github.com/veqryn/go-email v0.0.0-20200124140746-a72ac14e358c/go.mod h1:/wkXUpcdIFR3mp0fMes97u0UtjtbrdJ9WbBZ1IjsfEc=
 github.com/xiang90/probing v0.0.0-20190116061207-43a291ad63a2/go.mod h1:UETIi67q53MR2AWcXfiuqkDkRtnGDLqkBTpCHuJHxtU=

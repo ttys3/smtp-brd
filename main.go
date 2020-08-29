@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/mhale/smtpd"
+	"github.com/ttys3/smtpd"
 	flag "github.com/spf13/pflag"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -71,12 +71,13 @@ func initCfg() {
 	showHelp = config.V().GetBool("help")
 }
 
-func mailHandler(origin net.Addr, from string, to []string, data []byte) {
+func mailHandler(origin net.Addr, from string, to []string, data []byte) error {
 	msg, err := parser.ParseMail(data)
 	if err != nil {
-		zap.S().Errorf("parse mail failed with err: %s, received mail from %s to %s with subject %s, request origin: %s",
+		e := fmt.Errorf("parse mail failed with err: %s, received mail from %s to %s with subject %s, request origin: %s",
 			err, from, to[0], msg.Subject, origin.String())
-		return
+		zap.S().Error(e)
+		return e
 	}
 	zap.S().Debugf("parse mail success, received mail from %s for %s with subject %s, "+
 		"request origin: %s\nmsg parsed: %#v",
@@ -86,9 +87,12 @@ func mailHandler(origin net.Addr, from string, to []string, data []byte) {
 	sndr.AddBCCs(msg.BCC...)
 	sndr.AddTos(msg.To...)
 	if err := sndr.Send(from, "", msg.Subject, string(msg.BodyPlain), string(msg.BodyHtml)); err != nil {
-		zap.S().Errorf("mail send failed with err: %s, from: %s, to: %s, subject: %s, request origin: %s", err,
+		e := fmt.Errorf("mail send failed with err: %s, from: %s, to: %s, subject: %s, request origin: %s", err,
 			from, to[0], msg.Subject, origin.String())
+		zap.S().Error(e)
+		return e
 	}
+	return nil
 }
 
 func main() {
