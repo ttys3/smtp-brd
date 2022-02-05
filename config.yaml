@@ -1,0 +1,18 @@
+provider: "sendgrid"
+addr: "0.0.0.0"
+port: "2525"
+cert_file: ""
+key_file: ""
+auth_username: "user@example.com"
+auth_password: "password"
+tls: false
+debug: false
+provider_config:
+  - mailgun:
+      - api_key: ""
+      - domain: ""
+      - timeout: 10
+  - sendgrid:
+      - api_key: ""
+      - timeout: 10
+

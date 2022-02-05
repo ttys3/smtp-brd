@@ -9,26 +9,27 @@ import (
 	"time"
 
 	"github.com/mailgun/mailgun-go/v4"
-	flag "github.com/spf13/pflag"
-
 	"github.com/ttys3/smtp-brd/config"
 )
 
 func init() {
-	flag.String("mailgun.api_key", "", "Mailgun API key")
-	flag.String("mailgun.domain", "", "Mailgun domain")
-	flag.Int("mailgun.timeout", 10, "Mailgun timeout")
+	config.Cfg().InitDefaultProviderConfig("mailgun", config.PluginConfig{
+		"domain":  "",
+		"api_key": "",
+		"timeout": "10",
+	})
+
 	registerFactory("mailgun", func() Sender {
-		timeout := config.V().GetInt("mailgun.timeout")
+		cfg := config.Cfg().ProviderConfig("mailgun")
 		return NewMailgunSender(
-			config.V().GetString("mailgun.domain"),
-			config.V().GetString("mailgun.api_key"),
-			time.Second*time.Duration(timeout),
+			cfg.GetString("domain"),
+			cfg.GetString("api_key"),
+			time.Second*time.Duration(cfg.GetInt("timeout", 10)),
 		)
 	})
 }
 
-// MailgunConfig contain settings for mailgun API
+// MailgunSender contain settings for mailgun API
 type MailgunSender struct {
 	mg      *mailgun.MailgunImpl
 	Domain  string

@@ -8,12 +8,10 @@ import (
 
 	"github.com/sendgrid/sendgrid-go"
 	"github.com/sendgrid/sendgrid-go/helpers/mail"
-	flag "github.com/spf13/pflag"
-
 	"github.com/ttys3/smtp-brd/config"
 )
 
-// MailgunConfig contain settings for mailgun API
+// SendgridSender contain settings for mailgun API
 type SendgridSender struct {
 	sg      *sendgrid.Client
 	APIKey  string        // the SendGrid API key
@@ -22,12 +20,17 @@ type SendgridSender struct {
 }
 
 func init() {
-	flag.String("sendgrid.api_key", "", "SendGrid API key")
-	flag.Int("sendgrid.timeout", 10, "SendGrid timeout")
+	config.Cfg().InitDefaultProviderConfig("sendgrid", config.PluginConfig{
+		"api_key": "",
+		"timeout": "10",
+	})
+
 	registerFactory("sendgrid", func() Sender {
-		timeout := config.V().GetInt("sendgrid.timeout")
+		cfg := config.Cfg().ProviderConfig("sendgrid")
+
+		timeout := cfg.GetInt("timeout")
 		return NewSendgridSender(
-			config.V().GetString("sendgrid.api_key"),
+			cfg.GetString("api_key"),
 			time.Second*time.Duration(timeout),
 		)
 	})
